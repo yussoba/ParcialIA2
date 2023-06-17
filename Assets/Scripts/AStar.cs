@@ -9,9 +9,9 @@ public class AStar : MonoBehaviour
         public Vector3 position;
         public List<Node> neighbors;
         public float gScore; // Costo acumulado desde el inicio hasta este nodo
-        public float hScore; // HeurÌstica estimada desde este nodo hasta el objetivo
+        public float hScore; // Heur√≠stica estimada desde este nodo hasta el objetivo
         public float fScore => gScore + hScore; // Suma de gScore y hScore
-        public Node cameFrom; // Nodo anterior en el camino Ûptimo
+        public Node cameFrom; // Nodo anterior en el camino √≥ptimo
 
         public Node(Vector3 position)
         {
@@ -41,10 +41,10 @@ public class AStar : MonoBehaviour
 
         while (openSet.Count > 0)
         {
-            // Obtener el nodo con el fScore m·s bajo de la lista abierta
+            // Obtener el nodo con el fScore m√°s bajo de la lista abierta
             Node currentNode = GetNodeWithLowestFScore(openSet);
 
-            // Si el nodo actual es el objetivo, se ha encontrado el camino Ûptimo
+            // Si el nodo actual es el objetivo, se ha encontrado el camino √≥ptimo
             if (currentNode == goalNode)
                 return ReconstructPath(currentNode);
 
@@ -55,29 +55,29 @@ public class AStar : MonoBehaviour
             // Explorar los vecinos del nodo actual
             foreach (Node neighbor in currentNode.neighbors)
             {
-                // Si el vecino est· en la lista cerrada, continuar con el siguiente vecino
+                // Si el vecino est√° en la lista cerrada, continuar con el siguiente vecino
                 if (closedSet.Contains(neighbor))
                     continue;
 
                 // Calcular el nuevo gScore para el vecino
                 float tentativeGScore = currentNode.gScore + Vector3.Distance(currentNode.position, neighbor.position);
 
-                // Si el vecino no est· en la lista abierta o el nuevo gScore es menor
+                // Si el vecino no est√° en la lista abierta o el nuevo gScore es menor
                 if (!openSet.Contains(neighbor) || tentativeGScore < neighbor.gScore)
                 {
-                    // Actualizar la informaciÛn del vecino
+                    // Actualizar la informaci√≥n del vecino
                     neighbor.cameFrom = currentNode;
                     neighbor.gScore = tentativeGScore;
                     neighbor.hScore = HeuristicEstimate(neighbor.position, goalNode.position);
 
-                    // Si el vecino no est· en la lista abierta, agregarlo
+                    // Si el vecino no est√° en la lista abierta, agregarlo
                     if (!openSet.Contains(neighbor))
                         openSet.Add(neighbor);
                 }
             }
         }
 
-        // No se encontrÛ un camino v·lido
+        // No se encontr√≥ un camino v√°lido
         return null;
     }
 
@@ -111,16 +111,16 @@ public class AStar : MonoBehaviour
 
     private static float HeuristicEstimate(Vector3 start, Vector3 goal)
     {
-        // Utiliza una heurÌstica simple, la distancia en lÌnea recta
+        // Utiliza una heur√≠stica simple, la distancia en l√≠nea recta
         return Vector3.Distance(start, goal);
     }
 
-    // MÈtodo de ejemplo para construir el grafo del mapa con nodos y vecinos
+    // M√©todo de ejemplo para construir el grafo del mapa con nodos y vecinos
     private static List<Node> BuildMapGraph()
     {
-        // Implementa la lÛgica para construir el grafo del mapa con nodos y vecinos
+        // Implementa la l√≥gica para construir el grafo del mapa con nodos y vecinos
         // ...
-        // Aseg˙rate de tener una lista con todos los nodos necesarios y establece los vecinos adecuados para cada nodo
+        // Aseg√∫rate de tener una lista con todos los nodos necesarios y establece los vecinos adecuados para cada nodo
         // ...
 
         return new List<Node>();
