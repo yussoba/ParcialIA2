@@ -15,15 +15,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // Obtener entrada de movimiento del usuario
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        var moveHorizontal = Input.GetAxis("Horizontal");
+        var moveVertical = Input.GetAxis("Vertical");
 
-        // Calcular dirección de movimiento
-        Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0f);
-        movement.Normalize(); // Normalizar la magnitud para evitar movimientos diagonales más rápidos
+        var movement = new Vector3(moveHorizontal, moveVertical, 0f);
+        movement.Normalize();
 
-        // Aplicar movimiento al agente
         rb.velocity = movement * moveSpeed;
     }
 }

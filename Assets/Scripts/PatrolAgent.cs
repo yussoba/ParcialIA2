@@ -1,11 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PatrolAgent : MonoBehaviour
 {
-    public Color patrolColor;
-    public Transform[] waypoints;
+    public List<Node> waypoints;
     public float moveSpeed = 3f;
     public float fieldOfViewAngle = 90f;
     public float detectionRange = 10f;
@@ -16,11 +14,13 @@ public class PatrolAgent : MonoBehaviour
     private Vector3 alertedPosition;
     private Vector3 currentWaypoint;
     private bool isPatrolling = true;
+    private List<Node> defaultWaypoints;
 
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         currentWaypointIndex = 0;
+        defaultWaypoints = waypoints;
     }
 
     private void Update()
@@ -28,7 +28,7 @@ public class PatrolAgent : MonoBehaviour
         if (playerDetected)
         {
             // El jugador ha sido detectado, buscar el mejor camino hacia su posición
-            FindPathToPlayer();
+            FindPathToPosition(player.position);
         }
         else
         {
@@ -37,13 +37,13 @@ public class PatrolAgent : MonoBehaviour
                 // Si se ha llegado al waypoint actual, avanzar al siguiente
                 if (Vector3.Distance(transform.position, currentWaypoint) < 0.1f)
                 {
-                    currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+                    currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Count;
                     currentWaypoint = waypoints[currentWaypointIndex].position;
                 }
 
                 // Verificar si el siguiente waypoint está en línea de visión
-                Vector3 directionToNextWaypoint = currentWaypoint - transform.position;
-                float angleToNextWaypoint = Vector3.Angle(directionToNextWaypoint, transform.forward);
+                var directionToNextWaypoint = currentWaypoint - transform.position;
+                var angleToNextWaypoint = Vector3.Angle(directionToNextWaypoint, transform.forward);
 
                 if (angleToNextWaypoint <= fieldOfViewAngle * 0.5f)
                 {
@@ -63,7 +63,7 @@ public class PatrolAgent : MonoBehaviour
                 {
                     // Si el agente ha alcanzado el waypoint actual, pasa al siguiente
                     currentWaypointIndex++;
-                    if (currentWaypointIndex >= waypoints.Length)
+                    if (currentWaypointIndex >= waypoints.Count)
                     {
                         currentWaypointIndex = 0; // Vuelve al primer waypoint si ha alcanzado el último
                     }
@@ -75,8 +75,8 @@ public class PatrolAgent : MonoBehaviour
             // Si se ha recibido una posición alertada, comprobar si está en línea de visión
             if (alertedPosition != Vector3.zero)
             {
-                Vector3 directionToAlertedPosition = alertedPosition - transform.position;
-                float angleToAlertedPosition = Vector3.Angle(directionToAlertedPosition, transform.forward);
+                var directionToAlertedPosition = alertedPosition - transform.position;
+                var angleToAlertedPosition = Vector3.Angle(directionToAlertedPosition, transform.forward);
 
                 if (angleToAlertedPosition <= fieldOfViewAngle * 0.5f)
                 {
@@ -87,63 +87,63 @@ public class PatrolAgent : MonoBehaviour
                 else
                 {
                     // Calcular el camino hacia la posición alertada
-                    FindPathToAlertedPosition();
+                    FindPathToPosition(alertedPosition);
                 }
             }
-                // Continuar con el patrullaje
-                Patrol();
+            // Continuar con el patrullaje
+            Patrol();
         }
     }
     private void MoveToNextWaypoint()
     {
         // Moverse hacia el siguiente waypoint
-        Vector3 targetPosition = currentWaypoint;
-        Vector3 movement = targetPosition - transform.position;
+        var targetPosition = currentWaypoint;
+        var movement = targetPosition - transform.position;
         movement.Normalize();
         transform.Translate(movement * moveSpeed * Time.deltaTime);
     }
+    
     private void FindPathToNextWaypoint()
     {
         // Obtener la posición actual del agente y la posición del siguiente waypoint
-        Vector3 startPosition = transform.position;
-        Vector3 goalPosition = waypoints[currentWaypointIndex].position;
+        var startPosition = transform.position;
+        var goalPosition = currentWaypoint;
 
         // Calcular el camino utilizando A*
-        List<Vector3> path = AStar.FindPath(startPosition, goalPosition);
-
+        waypoints = AStar.FindPath(AStar.FindClosestNodeToPos(startPosition, waypoints), AStar.FindClosestNodeToPos(goalPosition, waypoints));
+        currentWaypointIndex = 0;
+        
         // Verificar si se encontró un camino válido
-        if (path != null && path.Count > 0)
+        if (waypoints != null && waypoints.Count > 0)
         {
-            // Actualizar la lista de waypoints del agente para seguir el nuevo camino
-            waypoints = new Transform[path.Count];
-            for (int i = 0; i < path.Count; i++)
-            {
-                waypoints[i] = new GameObject("Waypoint").transform;
-                waypoints[i].position = path[i];
-            }
-
             currentWaypoint = waypoints[currentWaypointIndex].position;
         }
+        else
+        {
+            waypoints = defaultWaypoints;
+            currentWaypoint = waypoints[0].position;
+        }
     }
+    
     private void Patrol()
     {
         // Moverse hacia el siguiente waypoint
-        Vector3 targetPosition = waypoints[currentWaypointIndex].position;
-        Vector3 movement = targetPosition - transform.position;
+        var targetPosition = waypoints[currentWaypointIndex].position;
+        var movement = targetPosition - transform.position;
         movement.Normalize();
         transform.Translate(movement * moveSpeed * Time.deltaTime);
 
         // Si alcanza el waypoint, avanzar al siguiente
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
-            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Count;
         }
 
         // Verificar si el jugador está en el rango de detección y dentro del campo de visión
         if (Vector3.Distance(transform.position, player.position) <= detectionRange)
         {
-            Vector3 directionToPlayer = player.position - transform.position;
-            float angleToPlayer = Vector3.Angle(directionToPlayer, transform.forward);
+            var directionToPlayer = player.position - transform.position;
+            var angleToPlayer = Vector3.Angle(directionToPlayer, transform.forward);
 
             if (angleToPlayer <= fieldOfViewAngle * 0.5f)
             {
@@ -151,66 +151,44 @@ public class PatrolAgent : MonoBehaviour
                 playerDetected = true;
 
                 // Alertar a los demás agentes
-                BroadcastMessage("OnPlayerDetected", player.position);
+                AlertAgents();
             }
         }
     }
 
-    private void FindPathToPlayer()
+    private void FindPathToPosition(Vector3 position)
     {
-        // Obtener la posición actual del agente y la posición del jugador
-        Vector3 startPosition = transform.position;
-        Vector3 goalPosition = player.position;
+        var startPosition = transform.position;
 
         // Calcular el camino utilizando A*
-        List<Vector3> path = AStar.FindPath(startPosition, goalPosition);
+        waypoints = AStar.FindPath(AStar.FindClosestNodeToPos(startPosition), AStar.FindClosestNodeToPos(position));
 
         // Verificar si se encontró un camino válido
-        if (path != null && path.Count > 0)
+        if (waypoints != null && waypoints.Count > 0)
         {
-            // Actualizar la lista de waypoints del agente para seguir el nuevo camino
-            waypoints = new Transform[path.Count];
-            for (int i = 0; i < path.Count; i++)
-            {
-                waypoints[i] = new GameObject("Waypoint").transform;
-                waypoints[i].position = path[i];
-            }
-
             currentWaypointIndex = 0;
             currentWaypoint = waypoints[currentWaypointIndex].position;
         }
     }
 
-    private void FindPathToAlertedPosition()
+    private void AlertAgents()
     {
-        // Obtener la posición actual del agente y la posición alertada
-        Vector3 startPosition = transform.position;
-        Vector3 goalPosition = alertedPosition;
+        var agents = FindObjectsOfType<PatrolAgent>();
 
-        // Calcular el camino utilizando A*
-        List<Vector3> path = AStar.FindPath(startPosition, goalPosition);
-
-        // Verificar si se encontró un camino válido
-        if (path != null && path.Count > 0)
+        foreach (var agent in agents)
         {
-            // Actualizar la lista de waypoints del agente para seguir el nuevo camino
-            waypoints = new Transform[path.Count];
-            for (int i = 0; i < path.Count; i++)
+            if (!agent.Equals(this))
             {
-                waypoints[i] = new GameObject("Waypoint").transform;
-                waypoints[i].position = path[i];
+                agent.OnPlayerDetected(player.position);
             }
-
-            currentWaypointIndex = 0;
-            currentWaypoint = waypoints[currentWaypointIndex].position;
         }
     }
 
-    private void OnPlayerDetected(Vector3 playerPosition)
+    public void OnPlayerDetected(Vector3 playerPosition)
     {
         // Un agente vecino ha detectado al jugador, comprobar si está en línea de visión
-        Vector3 directionToPlayer = playerPosition - transform.position;
-        float angleToPlayer = Vector3.Angle(directionToPlayer, transform.forward);
+        var directionToPlayer = playerPosition - transform.position;
+        var angleToPlayer = Vector3.Angle(directionToPlayer, transform.forward);
 
         if (angleToPlayer <= fieldOfViewAngle * 0.5f)
         {
@@ -221,12 +199,10 @@ public class PatrolAgent : MonoBehaviour
         else
         {
             // El jugador no está en línea de visión, calcular el camino hacia la posición del jugador
-            FindPathToPlayer();
+            FindPathToPosition(playerPosition);
         }
         // Guardar la posición alertada para el cálculo del camino
         alertedPosition = playerPosition;
         isPatrolling = false;
     }
-
-    //asdasdasdasda
 }

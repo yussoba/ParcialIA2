@@ -1,128 +1,109 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AStar : MonoBehaviour
 {
-    private class Node
+    public static List<Node> FindPath(Node start, Node goal)
     {
-        public Vector3 position;
-        public List<Node> neighbors;
-        public float gScore; // Costo acumulado desde el inicio hasta este nodo
-        public float hScore; // Heurística estimada desde este nodo hasta el objetivo
-        public float fScore => gScore + hScore; // Suma de gScore y hScore
-        public Node cameFrom; // Nodo anterior en el camino óptimo
+        var openSet = new HashSet<Node>();
+        var closedSet = new HashSet<Node>();
 
-        public Node(Vector3 position)
-        {
-            this.position = position;
-            neighbors = new List<Node>();
-            gScore = Mathf.Infinity;
-            hScore = 0f;
-            cameFrom = null;
-        }
-    }
-
-    public static List<Vector3> FindPath(Vector3 start, Vector3 goal)
-    {
-        // Obtener los nodos de inicio y objetivo
-        Node startNode = new Node(start);
-        Node goalNode = new Node(goal);
-
-        // Construir el grafo del mapa con los nodos necesarios
-        List<Node> allNodes = BuildMapGraph();
-
-        // Inicializar la lista abierta y cerrada del algoritmo A*
-        List<Node> openSet = new List<Node> { startNode };
-        List<Node> closedSet = new List<Node>();
-
-        // Asignar gScore de inicio a 0
-        startNode.gScore = 0f;
-
+        start.gCost = 0f;
+        openSet.Add(start);
+        
         while (openSet.Count > 0)
         {
             // Obtener el nodo con el fScore más bajo de la lista abierta
-            Node currentNode = GetNodeWithLowestFScore(openSet);
+            Node currentNode = GetLowestFCostNode(openSet);
 
             // Si el nodo actual es el objetivo, se ha encontrado el camino óptimo
-            if (currentNode == goalNode)
-                return ReconstructPath(currentNode);
+            if (currentNode == goal)
+                return ReconstructPath(start, goal);
 
             // Mover el nodo actual de la lista abierta a la cerrada
             openSet.Remove(currentNode);
             closedSet.Add(currentNode);
 
             // Explorar los vecinos del nodo actual
-            foreach (Node neighbor in currentNode.neighbors)
+            foreach (var neighbor in currentNode.neighbors)
             {
-                // Si el vecino está en la lista cerrada, continuar con el siguiente vecino
+                // Si el vecino está en el conjunto cerrado, ignorarlo
                 if (closedSet.Contains(neighbor))
-                    continue;
-
-                // Calcular el nuevo gScore para el vecino
-                float tentativeGScore = currentNode.gScore + Vector3.Distance(currentNode.position, neighbor.position);
-
-                // Si el vecino no está en la lista abierta o el nuevo gScore es menor
-                if (!openSet.Contains(neighbor) || tentativeGScore < neighbor.gScore)
                 {
-                    // Actualizar la información del vecino
-                    neighbor.cameFrom = currentNode;
-                    neighbor.gScore = tentativeGScore;
-                    neighbor.hScore = HeuristicEstimate(neighbor.position, goalNode.position);
+                    continue;
+                }
 
-                    // Si el vecino no está en la lista abierta, agregarlo
-                    if (!openSet.Contains(neighbor))
-                        openSet.Add(neighbor);
+                // Calcular el costo G tentativo desde el nodo de inicio hasta el vecino
+                var tentativeGCost = currentNode.gCost + Heuristic(currentNode.transform.position, neighbor.transform.position);
+
+                // Si el vecino no está en el conjunto abierto o el costo G es menor
+                if (!openSet.Contains(neighbor) || tentativeGCost < neighbor.gCost)
+                {
+                    // Actualizar los valores del vecino
+                    neighbor.gCost = tentativeGCost;
+                    neighbor.hCost = Heuristic(neighbor.transform.position, goal.transform.position);
+                    neighbor.parent = currentNode;
+
+                    // Si el vecino no está en el conjunto abierto, agregarlo
+                    openSet.Add(neighbor);
                 }
             }
         }
 
-        // No se encontró un camino válido
         return null;
     }
 
-    private static List<Vector3> ReconstructPath(Node node)
+    private static List<Node> ReconstructPath(Node start, Node goal)
     {
-        List<Vector3> path = new List<Vector3>();
-        Node current = node;
+        var path = new List<Node>();
+        var current = goal;
 
-        while (current != null)
+        while (current != start)
         {
-            path.Add(current.position);
-            current = current.cameFrom;
+            path.Add(current);
+            current = current.parent;
         }
 
         path.Reverse();
         return path;
     }
 
-    private static Node GetNodeWithLowestFScore(List<Node> nodes)
+    private static Node GetLowestFCostNode(HashSet<Node> nodes)
     {
-        Node lowestFScoreNode = nodes[0];
+        Node lowestNode = null;
+        var lowestFCost = float.MaxValue;
 
-        for (int i = 1; i < nodes.Count; i++)
+        foreach (var node in nodes)
         {
-            if (nodes[i].fScore < lowestFScoreNode.fScore)
-                lowestFScoreNode = nodes[i];
+            if (node.fCost < lowestFCost)
+            {
+                lowestFCost = node.fCost;
+                lowestNode = node;
+            }
         }
 
-        return lowestFScoreNode;
+        return lowestNode;
     }
 
-    private static float HeuristicEstimate(Vector3 start, Vector3 goal)
+    private static float Heuristic(Vector3 start, Vector3 goal)
     {
-        // Utiliza una heurística simple, la distancia en línea recta
         return Vector3.Distance(start, goal);
     }
 
-    // Método de ejemplo para construir el grafo del mapa con nodos y vecinos
-    private static List<Node> BuildMapGraph()
+    public static Node FindClosestNodeToPos(Vector3 position, List<Node> nodes = null)
     {
-        // Implementa la lógica para construir el grafo del mapa con nodos y vecinos
-        // ...
-        // Asegúrate de tener una lista con todos los nodos necesarios y establece los vecinos adecuados para cada nodo
-        // ...
+        var allNodes = nodes == null ? FindObjectsOfType<Node>().ToList() : nodes;
+        var currentNode = allNodes[0];
+        
+        foreach (var node in allNodes)
+        {
+            if (Heuristic(currentNode.position, position) > Heuristic(node.position, position))
+            {
+                currentNode = node;
+            }
+        }
 
-        return new List<Node>();
+        return currentNode;
     }
 }
