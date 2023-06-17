@@ -5,7 +5,8 @@ public enum EnemyState
 {
     Idle,
     Chase,
-    Patrol
+    Patrol,
+    Search
 }
 
 public class EnemySFM : MonoBehaviour
@@ -15,18 +16,22 @@ public class EnemySFM : MonoBehaviour
     public float idleTimer;
     public List<Node> startNodes;
     public int movementSpeed;
-
+    public bool playerFounded;
+    
     private EnemyState currentState;
     private List<Node> currentPath;
     private int currentPathIndex;
     private PlayerController player;
     private float idleCount;
     private int currentPatrolNodeIndex;
-
+    private Node targetNode;
+    private EnemyManager enemyManager;
+    
     private void Start()
     {
         currentState = EnemyState.Idle;
         player = FindObjectOfType<PlayerController>();
+        enemyManager = FindObjectOfType<EnemyManager>();
     }
     
     private void Update()
@@ -43,6 +48,9 @@ public class EnemySFM : MonoBehaviour
             case EnemyState.Patrol:
                 PatrolState();
                 break;
+            case EnemyState.Search:
+                SearchState();
+                break;
         }
     }
 
@@ -52,11 +60,17 @@ public class EnemySFM : MonoBehaviour
         {
             currentState = EnemyState.Chase;
         }
-
-        idleCount += Time.deltaTime;
-        if (idleTimer >= idleCount)
+        else if (playerFounded)
         {
-            currentState = EnemyState.Patrol;
+            currentState = EnemyState.Search;
+        }
+        else
+        {
+            idleCount += Time.deltaTime;
+            if (idleTimer >= idleCount)
+            {
+                currentState = EnemyState.Patrol;
+            }
         }
     }
 
@@ -69,7 +83,7 @@ public class EnemySFM : MonoBehaviour
             return;
         }
 
-        Vector3 direction = player.transform.position - transform.position;
+        var direction = player.transform.position - transform.position;
         direction.Normalize();
 
         RotateTowardsForward(direction);
@@ -81,45 +95,92 @@ public class EnemySFM : MonoBehaviour
         if (DetectPlayer())
         {
             currentState = EnemyState.Chase;
-            return;
         }
-
-        if (currentPath == null || currentPathIndex >= currentPath.Count)
+        else if (playerFounded)
         {
-            // Buscar un nuevo camino hacia el nodo de patrulla actual
-            var startNode = AStar.FindClosestNodeToPos(transform.position);
-            var targetNode = startNodes[currentPatrolNodeIndex];
-            currentPath = AStar.FindPath(startNode, targetNode);
-            currentPathIndex = 0;
+            currentState = EnemyState.Search;
         }
-
-        if (currentPath != null && currentPathIndex < currentPath.Count)
+        else
         {
-            // Mueve al enemigo hacia el siguiente nodo del camino
-            var nextPosition = currentPath[currentPathIndex].position;
-            var direction = nextPosition - transform.position;
-            direction.Normalize();
-
-            // Rotar hacia la dirección hacia adelante sin modificar el movimiento en el escenario
-            RotateTowardsForward(direction);
-
-            // Mueve al enemigo hacia adelante con una velocidad específica
-            transform.position += transform.right * movementSpeed * Time.deltaTime;
-
-            // Comprueba si el enemigo ha alcanzado el nodo objetivo del camino
-            if (Vector3.Distance(transform.position, nextPosition) < 0.1f)
+            if (currentPath == null || currentPathIndex >= currentPath.Count)
             {
-                currentPathIndex++;
+                // Buscar un nuevo camino hacia el nodo de patrulla actual
+                var startNode = AStar.FindClosestNodeToPos(transform.position);
+                var targetNode = startNodes[currentPatrolNodeIndex];
+                currentPath = AStar.FindPath(startNode, targetNode);
+                currentPathIndex = 0;
+            }
+            if (currentPath != null && currentPathIndex < currentPath.Count)
+            {
+                // Mueve al enemigo hacia el siguiente nodo del camino
+                var nextPosition = currentPath[currentPathIndex].position;
+                var direction = nextPosition - transform.position;
+                direction.Normalize();
+            
+                // Rotar hacia la dirección hacia adelante sin modificar el movimiento en el escenario
+                RotateTowardsForward(direction);
+            
+                // Mueve al enemigo hacia adelante con una velocidad específica
+                transform.position += transform.right * movementSpeed * Time.deltaTime;
+            
+                // Comprueba si el enemigo ha alcanzado el nodo objetivo del camino
+                if (Vector3.Distance(transform.position, nextPosition) < 0.1f)
+                {
+                    currentPathIndex++;
+                }
+            }
+            
+            // Comprueba si el enemigo ha alcanzado el último nodo de patrulla y actualiza al siguiente nodo
+            if (currentPathIndex >= currentPath.Count)
+            {
+                currentPatrolNodeIndex++;
+                if (currentPatrolNodeIndex >= startNodes.Count)
+                {
+                    currentPatrolNodeIndex = 0;
+                }
             }
         }
+    }
+    
+    private void SearchState()
+    {
+        // Encontrar el nodo más cercano a la última posición conocida del jugador
+        var closestNode = AStar.FindClosestNodeToPos(player.transform.position);
 
-        // Comprueba si el enemigo ha alcanzado el último nodo de patrulla y actualiza al siguiente nodo
-        if (currentPathIndex >= currentPath.Count)
+        // Si aún no se ha encontrado el nodo objetivo o el jugador ha cambiado de posición
+        if (targetNode == null || closestNode != targetNode)
         {
-            currentPatrolNodeIndex++;
-            if (currentPatrolNodeIndex >= startNodes.Count)
+            targetNode = closestNode;
+
+            // Encontrar el camino hacia el nodo objetivo
+            currentPath = AStar.FindPath(AStar.FindClosestNodeToPos(transform.position), targetNode);
+        }
+
+        // Si se ha encontrado un camino válido
+        if (currentPath != null && currentPath.Count > 0)
+        {
+            // Moverse hacia el siguiente nodo en el camino
+            var nextNode = currentPath[0];
+            var nextPosition = nextNode.position;
+
+            // Mover el enemigo hacia el siguiente nodo en el camino
+            transform.position = Vector3.MoveTowards(transform.position, nextPosition, Time.deltaTime * movementSpeed);
+
+            // Si el enemigo ha llegado al nodo objetivo
+            if (transform.position == nextPosition)
             {
-                currentPatrolNodeIndex = 0;
+                // Eliminar el nodo actual del camino
+                currentPath.RemoveAt(0);
+
+                // Si se ha alcanzado el final del camino
+                if (currentPath.Count == 0)
+                {
+                    // Invertir el camino
+                    currentPath.Reverse();
+
+                    // Cambiar al estado de patrullaje
+                    currentState = EnemyState.Patrol;
+                }
             }
         }
     }
@@ -153,11 +214,13 @@ public class EnemySFM : MonoBehaviour
         if (distance <= viewDistance && angle <= viewDistance * 0.5f)
         {
             // Realiza un raycast para detectar objetos en el camino
-            var hit = Physics2D.Raycast(transform.position, direction, distance, LayerMask.GetMask("Obstacles"));
+            var hit = Physics2D.Raycast(transform.position, direction, distance);
 
             // Si el raycast golpea un collider y es el jugador, lo ha detectado
             if (hit.collider != null && hit.collider.gameObject == player.gameObject)
             {
+                playerFounded = true;
+                enemyManager.NotifyOtherEnemies(this);
                 return true;
             }
         }

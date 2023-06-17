@@ -123,6 +123,55 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &76322329
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 76322331}
+  - component: {fileID: 76322330}
+  m_Layer: 0
+  m_Name: EnemyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &76322330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76322329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 268005f9fd6d21f4bb0c9c4f6c532469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemies:
+  - {fileID: 849322496}
+  - {fileID: 453714996}
+  - {fileID: 1189578473}
+  - {fileID: 1337680543}
+--- !u!4 &76322331
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76322329}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.46617275, y: 0.3041209, z: 0.19036245}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &146149310
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,6 +836,7 @@ MonoBehaviour:
   - {fileID: 1155252933}
   - {fileID: 1195280027}
   movementSpeed: 5
+  playerFounded: 0
 --- !u!1 &491380452
 GameObject:
   m_ObjectHideFlags: 0
@@ -2005,6 +2055,7 @@ MonoBehaviour:
   - {fileID: 491380455}
   - {fileID: 1099163238}
   movementSpeed: 5
+  playerFounded: 0
 --- !u!1 &1099163235
 GameObject:
   m_ObjectHideFlags: 0
@@ -2229,6 +2280,7 @@ MonoBehaviour:
   - {fileID: 2119953766}
   - {fileID: 1749966562}
   movementSpeed: 5
+  playerFounded: 0
 --- !u!1 &1192803286
 GameObject:
   m_ObjectHideFlags: 0
@@ -2892,6 +2944,7 @@ MonoBehaviour:
   - {fileID: 146149313}
   - {fileID: 1809692704}
   movementSpeed: 5
+  playerFounded: 0
 --- !u!1 &1371111327
 GameObject:
   m_ObjectHideFlags: 0
