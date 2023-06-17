@@ -173,6 +173,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 316740341}
   - {fileID: 1809692704}
+  parent: {fileID: 0}
 --- !u!1 &260663159
 GameObject:
   m_ObjectHideFlags: 0
@@ -553,6 +554,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 1749966562}
   - {fileID: 146149313}
+  parent: {fileID: 0}
 --- !u!1 &362346544
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,8 +676,8 @@ GameObject:
   - component: {fileID: 453714994}
   - component: {fileID: 453714993}
   - component: {fileID: 453714992}
-  - component: {fileID: 453714996}
   - component: {fileID: 453714995}
+  - component: {fileID: 453714996}
   m_Layer: 0
   m_Name: BlueEnemy
   m_TagString: Untagged
@@ -773,17 +775,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 453714990}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 813665fc24ff00d4f863d44612d5d0f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 60f22d1c25842084d89642fa1dd119d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  viewDistance: 2
+  viewAngle: 60
+  idleTimer: 5
+  startNodes:
   - {fileID: 698866496}
   - {fileID: 1517552675}
   - {fileID: 1155252933}
   - {fileID: 1195280027}
-  moveSpeed: 3
-  fieldOfViewAngle: 90
-  detectionRange: 10
+  movementSpeed: 5
 --- !u!1 &491380452
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,6 +837,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 1192803289}
   - {fileID: 1099163238}
+  parent: {fileID: 0}
 --- !u!1 &510041560
 GameObject:
   m_ObjectHideFlags: 0
@@ -1130,6 +1134,7 @@ MonoBehaviour:
   - {fileID: 1916449424}
   - {fileID: 1192803289}
   - {fileID: 588457258}
+  parent: {fileID: 0}
 --- !u!1 &588457255
 GameObject:
   m_ObjectHideFlags: 0
@@ -1180,6 +1185,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 559414483}
   - {fileID: 2105372635}
+  parent: {fileID: 0}
 --- !u!1 &598583132
 GameObject:
   m_ObjectHideFlags: 0
@@ -1655,6 +1661,7 @@ MonoBehaviour:
   - {fileID: 2105372635}
   - {fileID: 1517552675}
   - {fileID: 1195280027}
+  parent: {fileID: 0}
 --- !u!1 &727652366
 GameObject:
   m_ObjectHideFlags: 0
@@ -1886,8 +1893,8 @@ GameObject:
   - component: {fileID: 849322494}
   - component: {fileID: 849322493}
   - component: {fileID: 849322492}
-  - component: {fileID: 849322496}
   - component: {fileID: 849322495}
+  - component: {fileID: 849322496}
   m_Layer: 0
   m_Name: PinkEnemy
   m_TagString: Untagged
@@ -1985,18 +1992,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 849322490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 813665fc24ff00d4f863d44612d5d0f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 60f22d1c25842084d89642fa1dd119d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  viewDistance: 2
+  viewAngle: 60
+  idleTimer: 5
+  startNodes:
   - {fileID: 1916449424}
   - {fileID: 559414483}
   - {fileID: 1192803289}
   - {fileID: 491380455}
   - {fileID: 1099163238}
-  moveSpeed: 3
-  fieldOfViewAngle: 90
-  detectionRange: 10
+  movementSpeed: 5
 --- !u!1 &1099163235
 GameObject:
   m_ObjectHideFlags: 0
@@ -2046,6 +2054,7 @@ MonoBehaviour:
   cameFrom: {fileID: 0}
   neighbors:
   - {fileID: 1916449424}
+  parent: {fileID: 0}
 --- !u!1 &1155252930
 GameObject:
   m_ObjectHideFlags: 0
@@ -2097,6 +2106,7 @@ MonoBehaviour:
   - {fileID: 1517552675}
   - {fileID: 1195280027}
   - {fileID: 2119953766}
+  parent: {fileID: 0}
 --- !u!1 &1189578467
 GameObject:
   m_ObjectHideFlags: 0
@@ -2108,8 +2118,8 @@ GameObject:
   - component: {fileID: 1189578471}
   - component: {fileID: 1189578470}
   - component: {fileID: 1189578469}
-  - component: {fileID: 1189578473}
   - component: {fileID: 1189578472}
+  - component: {fileID: 1189578473}
   m_Layer: 0
   m_Name: GreenEnemy
   m_TagString: Untagged
@@ -2207,17 +2217,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1189578467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 813665fc24ff00d4f863d44612d5d0f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 60f22d1c25842084d89642fa1dd119d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  viewDistance: 2
+  viewAngle: 60
+  idleTimer: 5
+  startNodes:
   - {fileID: 1155252933}
   - {fileID: 1195280027}
   - {fileID: 2119953766}
   - {fileID: 1749966562}
-  moveSpeed: 3
-  fieldOfViewAngle: 90
-  detectionRange: 10
+  movementSpeed: 5
 --- !u!1 &1192803286
 GameObject:
   m_ObjectHideFlags: 0
@@ -2268,6 +2279,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 559414483}
   - {fileID: 491380455}
+  parent: {fileID: 0}
 --- !u!1 &1195280024
 GameObject:
   m_ObjectHideFlags: 0
@@ -2319,6 +2331,7 @@ MonoBehaviour:
   - {fileID: 1155252933}
   - {fileID: 698866496}
   - {fileID: 1749966562}
+  parent: {fileID: 0}
 --- !u!1 &1205206474
 GameObject:
   m_ObjectHideFlags: 0
@@ -2770,8 +2783,8 @@ GameObject:
   - component: {fileID: 1337680541}
   - component: {fileID: 1337680540}
   - component: {fileID: 1337680539}
-  - component: {fileID: 1337680543}
   - component: {fileID: 1337680542}
+  - component: {fileID: 1337680543}
   m_Layer: 0
   m_Name: RedEnemy
   m_TagString: Untagged
@@ -2869,15 +2882,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1337680537}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 813665fc24ff00d4f863d44612d5d0f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 60f22d1c25842084d89642fa1dd119d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  viewDistance: 2
+  viewAngle: 60
+  idleTimer: 5
+  startNodes:
   - {fileID: 146149313}
   - {fileID: 1809692704}
-  moveSpeed: 3
-  fieldOfViewAngle: 90
-  detectionRange: 10
+  movementSpeed: 5
 --- !u!1 &1371111327
 GameObject:
   m_ObjectHideFlags: 0
@@ -3258,6 +3272,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 698866496}
   - {fileID: 1155252933}
+  parent: {fileID: 0}
 --- !u!1 &1544480803
 GameObject:
   m_ObjectHideFlags: 0
@@ -3272,7 +3287,7 @@ GameObject:
   - component: {fileID: 1544480804}
   - component: {fileID: 1544480810}
   - component: {fileID: 1544480809}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -3612,6 +3627,7 @@ MonoBehaviour:
   - {fileID: 2119953766}
   - {fileID: 1195280027}
   - {fileID: 316740341}
+  parent: {fileID: 0}
 --- !u!1 &1809692702
 GameObject:
   m_ObjectHideFlags: 0
@@ -3661,6 +3677,7 @@ MonoBehaviour:
   cameFrom: {fileID: 0}
   neighbors:
   - {fileID: 146149313}
+  parent: {fileID: 0}
 --- !u!1 &1916449421
 GameObject:
   m_ObjectHideFlags: 0
@@ -3711,6 +3728,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 559414483}
   - {fileID: 1099163238}
+  parent: {fileID: 0}
 --- !u!1 &1919902402
 GameObject:
   m_ObjectHideFlags: 0
@@ -3981,6 +3999,7 @@ MonoBehaviour:
   neighbors:
   - {fileID: 588457258}
   - {fileID: 698866496}
+  parent: {fileID: 0}
 --- !u!1 &2119953763
 GameObject:
   m_ObjectHideFlags: 0
@@ -4031,3 +4050,4 @@ MonoBehaviour:
   neighbors:
   - {fileID: 1155252933}
   - {fileID: 1749966562}
+  parent: {fileID: 0}
