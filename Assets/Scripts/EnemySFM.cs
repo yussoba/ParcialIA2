@@ -65,7 +65,7 @@ public class EnemySFM : MonoBehaviour
         }
         else if (playerFounded)
         {
-            currentState = EnemyState.Search;
+            playerFounded = !playerFounded;
         }
         else
         {
@@ -188,6 +188,10 @@ public class EnemySFM : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            currentState = EnemyState.Idle;
+        }
     }
     
     private bool DetectPlayer()
@@ -215,25 +219,6 @@ public class EnemySFM : MonoBehaviour
         Debug.DrawRay(transform.position, Quaternion.Euler(0, 0, viewAngle * 0.5f) * forwardDirection * viewDistance, Color.green);
         Debug.DrawRay(transform.position, forwardDirection * viewDistance, Color.green);
 
-        // Comprueba si el jugador está dentro del rango de detección y dentro del ángulo de visión del enemigo
-        /*if (distance <= viewDistance && angle <= viewAngle)
-        {
-            Debug.Log("Vi al player");
-
-            var dir = playerPosition - (Vector2)transform.position;
-            // Realiza un raycast para detectar objetos en el camino
-            var hit = Physics2D.Raycast(transform.position, dir, dir.magnitude);
-
-            Debug.Log(hit.collider.gameObject);
-
-            // Si el raycast golpea un collider y es el jugador, lo ha detectado
-            if (hit.collider != null && hit.collider.gameObject == player.gameObject)
-            {
-                playerFounded = true;
-                enemyManager.NotifyOtherEnemies(this);
-                return true;
-            }
-        }*/
         if (Vector2.Distance(transform.position, playerPosition) > viewDistance)
         {
             return false;
@@ -243,8 +228,8 @@ public class EnemySFM : MonoBehaviour
         {
             return false;
         }
-        Debug.Log(InLos((Vector2)transform.position, playerPosition));
-        return InLos((Vector2)transform.position, playerPosition);
+        Debug.Log(InLos(transform.position, playerPosition));
+        return InLos(transform.position, playerPosition);
     }
         
     public bool InLos(Vector2 myPos, Vector2 playerPos)
