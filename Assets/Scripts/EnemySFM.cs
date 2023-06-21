@@ -17,7 +17,8 @@ public class EnemySFM : MonoBehaviour
     public List<Node> startNodes;
     public int movementSpeed;
     public bool playerFounded;
-    
+    public LayerMask wallLayer;
+
     private EnemyState currentState;
     private List<Node> currentPath;
     private int currentPathIndex;
@@ -58,6 +59,8 @@ public class EnemySFM : MonoBehaviour
     {
         if (DetectPlayer())
         {
+            playerFounded = true;
+            enemyManager.NotifyOtherEnemies(this);
             currentState = EnemyState.Chase;
         }
         else if (playerFounded)
@@ -94,6 +97,8 @@ public class EnemySFM : MonoBehaviour
     {
         if (DetectPlayer())
         {
+            playerFounded = true;
+            enemyManager.NotifyOtherEnemies(this);
             currentState = EnemyState.Chase;
         }
         else if (playerFounded)
@@ -211,10 +216,15 @@ public class EnemySFM : MonoBehaviour
         Debug.DrawRay(transform.position, forwardDirection * viewDistance, Color.green);
 
         // Comprueba si el jugador está dentro del rango de detección y dentro del ángulo de visión del enemigo
-        if (distance <= viewDistance && angle <= viewDistance * 0.5f)
+        /*if (distance <= viewDistance && angle <= viewAngle)
         {
+            Debug.Log("Vi al player");
+
+            var dir = playerPosition - (Vector2)transform.position;
             // Realiza un raycast para detectar objetos en el camino
-            var hit = Physics2D.Raycast(transform.position, direction, distance);
+            var hit = Physics2D.Raycast(transform.position, dir, dir.magnitude);
+
+            Debug.Log(hit.collider.gameObject);
 
             // Si el raycast golpea un collider y es el jugador, lo ha detectado
             if (hit.collider != null && hit.collider.gameObject == player.gameObject)
@@ -223,14 +233,31 @@ public class EnemySFM : MonoBehaviour
                 enemyManager.NotifyOtherEnemies(this);
                 return true;
             }
-        }
+        }*/
+        if (Vector2.Distance(transform.position, playerPosition) > viewDistance)
+        {
+            return false;
 
-        return false;
+        }
+        if (Vector2.Angle(transform.forward, playerPosition - (Vector2)transform.position) > (viewAngle / 2))
+        {
+            return false;
+        }
+        Debug.Log(InLos((Vector2)transform.position, playerPosition));
+        return InLos((Vector2)transform.position, playerPosition);
     }
         
+    public bool InLos(Vector2 myPos, Vector2 playerPos)
+    {
+        var dir = playerPos - myPos;
+        Debug.Log(!Physics2D.Raycast(myPos, dir, dir.magnitude, wallLayer));
+        return !Physics2D.Raycast(myPos, dir, dir.magnitude, wallLayer);
+    }
+
     private void RotateTowardsForward(Vector3 direction)
     {
         var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
+
 }
